@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { firebaseAuth } from '../../infrastructure/firebase/firebase.config';
+import { FirebaseAuthRepository } from '../../infrastructure/repositories/firebase-auth.repository';
+
+const authRepository = new FirebaseAuthRepository();
 
 export const authMiddleware = async (
   req: Request,
@@ -16,8 +18,8 @@ export const authMiddleware = async (
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = await firebaseAuth.verifyIdToken(token);
-    req.user = { uid: decoded.uid, email: decoded.email ?? '' };
+    const decoded = await authRepository.verifyToken(token);
+    req.user = { uid: decoded.uid, email: decoded.email };
     next();
   } catch {
     res.status(401).json({ message: 'Unauthorized: invalid or expired token' });

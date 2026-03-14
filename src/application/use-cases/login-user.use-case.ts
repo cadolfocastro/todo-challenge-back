@@ -1,4 +1,9 @@
-import { IAuthService } from '../../domain/services/auth.service.interface';
+import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
+
+export interface LoginDto {
+  email: string;
+  password: string;
+}
 
 export interface LoginResultDto {
   uid: string;
@@ -7,10 +12,9 @@ export interface LoginResultDto {
 }
 
 export class LoginUserUseCase {
-  constructor(private readonly authService: IAuthService) {}
+  constructor(private readonly authRepository: IAuthRepository) {}
 
-  async execute(idToken: string): Promise<LoginResultDto> {
-    const user = await this.authService.verifyToken(idToken);
-    return { uid: user.uid, email: user.email, token: idToken };
+  async execute(dto: LoginDto): Promise<LoginResultDto> {
+    return this.authRepository.signIn(dto.email, dto.password);
   }
 }

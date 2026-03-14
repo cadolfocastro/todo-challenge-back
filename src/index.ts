@@ -1,3 +1,6 @@
+// Load env variables first, before any other import
+import "dotenv/config";
+
 // Firebase must be initialized before any route/controller imports
 import "./infrastructure/firebase/firebase.config";
 
@@ -6,10 +9,10 @@ import cors from "cors";
 import { onRequest } from "firebase-functions/v2/https";
 import taskRoutes from "./presentation/routes/task.routes";
 import authRoutes from "./presentation/routes/auth.routes";
+import { env } from "process";
 
 const app = express();
-
-app.use(cors({ origin: "https://todo-challenge-19553.web.app" }));
+app.use(cors({ origin: env.CORS_ORIGIN ?? "http://localhost:4200" }));
 app.use(express.json());
 
 app.use("/tasks", taskRoutes);
@@ -28,3 +31,8 @@ export const api = onRequest(
   },
   app,
 );
+
+if (require.main === module) {
+  const PORT = 3000;
+  app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+}

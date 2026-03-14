@@ -1,27 +1,45 @@
 import { Request, Response } from 'express';
 import { LoginUserUseCase } from '../../application/use-cases/login-user.use-case';
-import { FirebaseAuthService } from '../../infrastructure/services/firebase-auth.service';
+import { CreateUserUseCase } from '../../application/use-cases/create-user.use-case';
+import { FirebaseAuthRepository } from '../../infrastructure/repositories/firebase-auth.repository';
+import { FirestoreUserRepository } from '../../infrastructure/repositories/firestore-user.repository';
 
 export class AuthController {
   private readonly loginUserUseCase: LoginUserUseCase;
+  private readonly createUserUseCase: CreateUserUseCase;
 
   constructor() {
-    this.loginUserUseCase = new LoginUserUseCase(new FirebaseAuthService());
+    const authRepository = new FirebaseAuthRepository();
+    this.loginUserUseCase = new LoginUserUseCase(authRepository);
+    this.createUserUseCase = new CreateUserUseCase(authRepository, new FirestoreUserRepository());
   }
 
   async login(req: Request, res: Response): Promise<void> {
-    const { idToken } = req.body as { idToken?: string };
-
-    if (!idToken) {
-      res.status(400).json({ message: 'El campo "idToken" es obligatorio' });
-      return;
-    }
+    const { email, password } = req.body as { email: string; password: string };
 
     try {
-      const result = await this.loginUserUseCase.execute(idToken);
+      const result = await this.loginUserUseCase.execute({ email, password });
       res.json(result);
-    } catch {
-      res.status(401).json({ message: 'Token inválido o expirado' });
+    } catch (error: unknown) {
+      const code = error instanceof Error ? error.message : 'UNKNOWN';
+      const status = code === 'INVALID_PASSWORD' || code === 'EMAIL_NOT_FOUND' || code === 'INVALID_LOGIN_CREDENTIALS' ? 401 : 500;
+      res.status(status).json({ error: { message: code } });
+    }
+  }
+
+  async register(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body as { email: string; password: string };
+
+    try {
+      const result = await this.createUserUseCase.execute({ email, password });
+      res.status(201).json(result);
+    } catch (error: unknown) {
+      const code = error instanceof Error ? error.message : '';
+      if (code === 'EMAIL_EXISTS') {
+        res.status(409).json({ message: 'El correo ya está registrado' });
+        return;
+      }
+      res.status(500).json({ message: 'Error al crear el usuario' });
     }
   }
 }
