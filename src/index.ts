@@ -9,7 +9,7 @@ import authRoutes from "./presentation/routes/auth.routes";
 
 const app = express();
 
-app.use(cors({ origin: true }));
+app.use(cors({ origin: "https://todo-challenge-19553.web.app" }));
 app.use(express.json());
 
 app.use("/tasks", taskRoutes);
