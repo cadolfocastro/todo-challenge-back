@@ -9,14 +9,10 @@ if (!admin.apps.length) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const serviceAccount = require(serviceAccountPath) as admin.ServiceAccount;
     admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-  } else if (process.env['GOOGLE_APPLICATION_CREDENTIALS']) {
-    admin.initializeApp({ credential: admin.credential.applicationDefault() });
   } else {
-    throw new Error(
-      'Firebase credentials not found.\n' +
-        'Place serviceAccountKey.json in the project root, or set GOOGLE_APPLICATION_CREDENTIALS.\n' +
-        'Download the key from: Firebase Console → Project Settings → Service Accounts → Generate new private key',
-    );
+    // In Cloud Functions / GCP environments, Application Default Credentials are
+    // automatically provided. For local dev, set GOOGLE_APPLICATION_CREDENTIALS.
+    admin.initializeApp({ credential: admin.credential.applicationDefault() });
   }
 
   console.log('✅ Firebase Admin initialized');

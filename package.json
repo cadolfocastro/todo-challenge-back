@@ -2,17 +2,23 @@
   "name": "todo-challenge-back",
   "version": "1.0.0",
   "description": "Todo Challenge Backend – Hexagonal Architecture with Firebase",
-  "main": "dist/server.js",
+  "main": "dist/index.js",
+  "engines": {
+    "node": "20"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "deploy": "npm run build && firebase deploy --only functions",
+    "deploy:preview": "npm run build && firebase deploy --only functions --debug"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
-    "firebase-admin": "^12.7.0"
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^7.1.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
