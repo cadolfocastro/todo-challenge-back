@@ -6,3 +6,4 @@ serviceAccountKey.json
 .firebase/
 firebase-debug.log
 firebase-debug.*.log
+coverage/
