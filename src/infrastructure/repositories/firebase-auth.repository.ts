@@ -16,7 +16,7 @@ async function firebaseRestRequest(
   email: string,
   password: string,
 ): Promise<AuthTokenResult> {
-  const FIREBASE_API_KEY = process.env["FIREBASE_API_KEY"] ?? "";
+  const FIREBASE_API_KEY = process.env["FB_API_KEY"] ?? "";
   const url = `https://identitytoolkit.googleapis.com/v1/${endpoint}?key=${FIREBASE_API_KEY}`;
   const response = await fetch(url, {
     method: "POST",
